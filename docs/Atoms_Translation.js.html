@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Atoms/Translation.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Atoms/Translation.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import palabras from '../Assets/palabras.json';
+import CircularLoader from './CircularLoader';
+const useStyles = makeStyles({
+  root: {
+    minWidth: 275,
+  },
+  bullet: {
+    display: 'inline-block',
+    margin: '0 2px',
+    transform: 'scale(0.8)',
+  },
+  title: {
+    fontSize: 14,
+  },
+  pos: {
+    marginBottom: 12,
+    fontSize: 14
+  },
+});
+/**
+ * Muestra el tipo de palabra a traducir y su traducción
+ * @param {string} kindOfTranslation el tipo de traducción a realizar (Embera-Español o Español-Embera) 
+ * @param {string} textToTranslate es el texto a traducir, proviene de TextInput o de SelectWords
+ */
+export default function Translation(props) {
+  const classes = useStyles();
+  const [loading, setLoading] = useState(false);
+  const [translation, setTranslation] = useState('');
+
+  //Comentarios:
+  // De forma similar a componentDidMount y componentDidUpdate en clases de React
+  useEffect(() => {
+    //En el código inferior creo el algoritmo de búsqueda de las palabras
+    const text = props.textToTranslate;
+    //elimino los símbolos especiales como ?, ! y tíldes para buscar en el objeto JSON de las palabras
+    const specialSymbols = /[¿?¡!]/g;
+    const textReplaced = text !== undefined ? text.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+    const entriesArray = Object.entries(palabras);
+    const wordsFormatted = entriesArray.map((word) => {
+      const index = props.kindOfTranslation === 'Español-Embera' ? 0 : 1;
+      let wordReplaced;
+      //revisar si la palabra que se revisa es un arreglo
+      if (Array.isArray(word[index])) {
+        word[index].map((innerWord) => wordReplaced = innerWord.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())
+      } else {
+        wordReplaced = word[index].replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      }
+      return wordReplaced;
+    });
+    const wordsIncluded = wordsFormatted.includes(textReplaced);
+    if (wordsIncluded) {
+      entriesArray.find((word) => {
+        const index = props.kindOfTranslation === 'Español-Embera' ? 0 : 1;
+        const indexTwo = index === 0 ? 1 : 0;
+        let wordReplaced;
+        if (Array.isArray(word[index])) {
+          wordReplaced = word[index].map((innerWord) => innerWord.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+        } else {
+          wordReplaced = word[index].replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+        if (wordReplaced == textReplaced) {
+          //la palabra que se ingresa en el input coincide con una palabra en el objeto json
+          //y se procede a actualizar la vista con la palabra traducida
+          if (Array.isArray(word[indexTwo])) {
+            //la palabra que coincide es un array, por lo que se muestran las dos traducciones posibles
+            setTranslation(word[indexTwo][0] + ' / ' + word[indexTwo][1])
+          } else {
+            setTranslation(word[indexTwo]);
+          }
+          setLoading(true);
+        }
+      }
+      )
+    } else if (textReplaced !== '') {
+      setTranslation('Palabra no encontrada');
+    } else {
+      setTranslation('');
+    }
+
+  }, [props.textToTranslate]);
+  useEffect(() => {
+    //Agrego el loader por un segundo y medio antes de mostrar la palabra traducida
+    setTimeout(() => setLoading(false), 1500);
+  }, [loading]);
+  return (
+    &lt;Card className={classes.root}>
+      &lt;CardContent>
+        &lt;Grid container justify='center'>
+          &lt;Typography className={classes.title} color="primary" gutterBottom>
+            {props.kindOfTranslation}
+          &lt;/Typography>
+        &lt;/Grid>
+        &lt;Typography className={classes.title} color="textSecondary" gutterBottom>
+          Palabra
+        &lt;/Typography>
+        &lt;Typography variant="h5" component="h2">
+          {props.textToTranslate}
+        &lt;/Typography>
+        &lt;Typography className={classes.pos} color="textSecondary">
+          Traducción
+        &lt;/Typography>
+        {loading ?
+          &lt;CircularLoader /> :
+          &lt;Typography variant="h5" component="h2">
+            {translation}
+          &lt;/Typography>}
+      &lt;/CardContent>
+    &lt;/Card>
+  );
+}
+
+Translation.propTypes = {
+  kindOfTranslation: PropTypes.string,
+  textToTranslate : PropTypes.string
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#App">App</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Nov 29 2020 14:10:13 GMT-0500 (Colombia Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

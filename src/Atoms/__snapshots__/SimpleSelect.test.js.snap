@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MyComponent should render correctly in "debug" mode 1`] = `
+<div>
+  <WithStyles(ForwardRef(FormControl))
+    className="makeStyles-formControl-1"
+    variant="filled"
+  >
+    <WithStyles(ForwardRef(InputLabel))
+      id="demo-simple-select-filled-label"
+    >
+      Traducción
+    </WithStyles(ForwardRef(InputLabel))>
+    <WithStyles(ForwardRef(Select))
+      id="demo-simple-select-filled"
+      labelId="demo-simple-select-filled-label"
+      onChange={[Function]}
+      value="Español-Embera"
+    >
+      <WithStyles(ForwardRef(MenuItem))
+        value="Español-Embera"
+      >
+        Español-Embera
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        value="Embera-Español"
+      >
+        Embera-Español
+      </WithStyles(ForwardRef(MenuItem))>
+    </WithStyles(ForwardRef(Select))>
+  </WithStyles(ForwardRef(FormControl))>
+</div>
+`;

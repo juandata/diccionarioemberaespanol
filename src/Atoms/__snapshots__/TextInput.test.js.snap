@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MyComponent should render correctly in "debug" mode 1`] = `
+<form
+  autoComplete="off"
+  noValidate={true}
+  onSubmit={[Function]}
+>
+  <WithStyles(ForwardRef(TextField))
+    className="MuiFilledInput-input"
+    id="filled-basic"
+    label="Ingresa la palabra o expresión a traducir"
+    onChange={[Function]}
+    value=""
+    variant="filled"
+  />
+</form>
+`;
