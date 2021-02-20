@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
  * @param {function} handleChange Una función callback que recibe el texto del usuario y lo pasa al componente
  * padre APP.  
  */
-export default function TextInput(props) {
+export default function TextInputTranslation(props) {
   const classes = useStyles();
   const [text, setText] = useState('');
   const handleChange = (event) => {
@@ -26,13 +26,13 @@ export default function TextInput(props) {
 
   return (
     <form noValidate autoComplete="off" onSubmit={(ev) => ev.preventDefault()}>
-      <TextField className={classes.input} id="filled-basic" label="Ingresa la palabra a traducir" variant="filled" value={text}
+      <TextField className={classes.input} id="filled-basic" label="Ingresa la frase a traducir" variant="filled" value={text}
         onChange={handleChange} 
       />
     </form>
   );
 }
 
-TextInput.propTypes = {
+TextInputTranslation.propTypes = {
   handleChange: PropTypes.func
 };

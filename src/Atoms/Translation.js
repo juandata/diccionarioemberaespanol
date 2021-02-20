@@ -5,6 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import palabras from '../Assets/palabras.json';
+import frases from '../Assets/frases.json';
 import CircularLoader from './CircularLoader';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -43,19 +44,26 @@ export default function Translation(props) {
     //elimino los símbolos especiales como ?, ! y tíldes para buscar en el objeto JSON de las palabras
     const specialSymbols = /[¿?¡!]/g;
     const textReplaced = text !== undefined ? text.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
-    let entriesArray = [];//Object.entries(palabras);
-    const entriesArrayCheck = Object.entries(palabras);
+    let entriesArray = [];
+    //si se trata de traducción se usan las frases, de lo contrario las palabras para el diccionario
+    const entriesArrayCheck = props.translation ? Object.entries(frases) : Object.entries(palabras);
     let index = 0;
-    if (entriesArrayCheck.length >= process.env.REACT_APP_CHECK_LENGTH) {
-      for (const property in palabras) {
-        index++;
-        if (index <= process.env.REACT_APP_CHECK_LENGTH) {
-          entriesArray.push([property, palabras[property]])
+    //revisar si se trata de un traduccion de palabra o frase
+    if(!props.translation){
+      if (entriesArrayCheck.length >= process.env.REACT_APP_CHECK_LENGTH) {
+        for (const property in palabras) {
+          index++;
+          if (index <= process.env.REACT_APP_CHECK_LENGTH) {
+            entriesArray.push([property, palabras[property]])
+          }
         }
       }
+    } else {
+      //se trata de una traduccion de frase
+      entriesArray = entriesArrayCheck;
     }
-
-    let wordReplacedFinal;
+    if(!props.translation){
+      let wordReplacedFinal;
     let temporalArrayForSavingInnerArrays = [];
     let wordsFormatted = entriesArray.map((word) => {
       const index = props.kindOfTranslation === 'Español-Embera' ? 0 : 1;
@@ -125,6 +133,58 @@ export default function Translation(props) {
     } else {
       setTranslation('');
     }
+    }
+    else {
+      //traducir frase
+      //verificar si se trata de una traduccion del español al embera
+      if(props.kindOfTranslation === 'Español-Embera'){
+        //traduccion del español al embera
+        let coincide = false;
+        const specialSymbols = /[¿?¡!.,:; ]/g;
+        const textoEnMinusculaSinCaracteresEspeciales =   props.textToTranslate.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        //const textoEnFrasesEnMinusculasSinCaracteresEspeciales; 
+        entriesArray.every(el=>{
+          const fraseEnEspanolEnMinusculasSinCaracteresEspeciales = el[0].replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); 
+          if(textoEnMinusculaSinCaracteresEspeciales === fraseEnEspanolEnMinusculasSinCaracteresEspeciales){
+            //la frase en la lista coincide con el input del usuario
+            coincide = true;
+            setTranslation(el[1]);
+            setLoading(true);
+            return false;
+          } else {
+            coincide = false;
+            return true;
+          }
+        });
+        //si coincide traducir el texto, si no avisar al usuario que la frase no fue encontrada
+        if(!coincide){
+          setTranslation('Frase no encontrada');
+        } 
+      } else {
+        //traducccion del embera al espanol
+          let coincide = false;
+          const specialSymbols = /[¿?¡!.,:; ]/g;
+          const textoEnMinusculaSinCaracteresEspeciales =   props.textToTranslate.replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+          entriesArray.every(el=>{
+            const fraseEnEmberaEnMinusculasSinCaracteresEspeciales = el[1].replace(specialSymbols, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); 
+            if(textoEnMinusculaSinCaracteresEspeciales === fraseEnEmberaEnMinusculasSinCaracteresEspeciales){
+              //la frase en la lista coincide con el input del usuario
+              coincide = true;
+              setTranslation(el[0]);
+              setLoading(true);
+              return false;
+            } else {
+              coincide = false;
+              return true;
+            }
+          });
+          //si coincide traducir el texto, si no avisar al usuario que la frase no fue encontrada
+          if(!coincide){
+            setTranslation('Frase no encontrada');
+          } 
+
+      }
+    }
 
   }, [props.textToTranslate, props.kindOfTranslation]);
   useEffect(() => {
@@ -140,7 +200,7 @@ export default function Translation(props) {
           </Typography>
         </Grid>
         <Typography className={classes.title} color="textSecondary" gutterBottom>
-          Palabra
+          {!props.translation ? 'Palabra' : 'Frase'}
         </Typography>
         <Typography variant="h5" component="h2">
           {props.textToTranslate}
